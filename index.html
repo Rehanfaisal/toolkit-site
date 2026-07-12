@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<!-- Google tag (gtag.js) -->
+	<script async src="https://www.googletagmanager.com/gtag/js?id=G-VVY3N3JDCJ"></script>
+	<script>
+		window.dataLayer = window.dataLayer || [];
+		function gtag(){dataLayer.push(arguments);}
+		gtag('js', new Date());
+		gtag('config', 'G-VVY3N3JDCJ');
+	</script>
+
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>Itch Toolkit — Analytics, alerts &amp; page tools for itch.io creators</title>
+	<meta name="description" content="A Chrome extension that supercharges the itch.io creator dashboard: real analytics, download & sale alerts, tag research, page widgets, CSS themes and a GIF studio. Free to start, Pro $2.99/mo." />
+	<link rel="canonical" href="https://toolkit.rehandev.xyz/" />
+	<link rel="icon" href="/assets/icon128.png" type="image/png" />
+	<meta property="og:title" content="Itch Toolkit — the itch.io creator toolkit" />
+	<meta property="og:description" content="Real analytics, alerts, tag research, widgets, CSS themes and a GIF studio for itch.io creators." />
+	<meta property="og:image" content="https://toolkit.rehandev.xyz/assets/01_analytics.jpg" />
+	<meta property="og:url" content="https://toolkit.rehandev.xyz/" />
+
+	<link rel="preconnect" href="https://fonts.googleapis.com" />
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+	<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=JetBrains+Mono:wght@400;600&family=Press+Start+2P&display=swap" rel="stylesheet" />
+
+	<style>
+		:root {
+			--bg: #0b0d13; --bg2: #0e1119; --card: #14161e; --border: rgba(242, 183, 5, .16);
+			--border2: rgba(255, 255, 255, .08);
+			--text: #eceae4; --muted: #9a9ea9;
+			--amber: #f2b705; --amber-dim: rgba(242, 183, 5, .12);
+			--green: #4caf6f;
+			--pixel: 'Press Start 2P', monospace;
+			--mono: 'JetBrains Mono', monospace;
+		}
+		* { margin: 0; padding: 0; box-sizing: border-box; }
+		html { scroll-behavior: smooth; }
+		body { background: var(--bg); color: var(--text); font-family: 'Space Grotesk', system-ui, sans-serif; line-height: 1.65; }
+		::selection { background: var(--amber); color: #100d02; }
+		a { color: var(--amber); text-decoration: none; }
+		img { max-width: 100%; display: block; }
+		.wrap { max-width: 1080px; margin: 0 auto; padding: 0 22px; }
+
+		/* nav */
+		nav { position: sticky; top: 0; z-index: 50; background: rgba(11, 13, 19, .85); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border2); }
+		.navin { display: flex; align-items: center; gap: 14px; padding: 12px 0; }
+		.brand { display: flex; align-items: center; gap: 10px; font-weight: 700; color: var(--text); font-size: 1.02rem; }
+		.brand img { width: 30px; height: 30px; border-radius: 8px; }
+		.brand b { color: var(--amber); }
+		.navlinks { margin-left: auto; display: flex; gap: 20px; align-items: center; font-size: .9rem; }
+		.navlinks a { color: var(--muted); }
+		.navlinks a:hover { color: var(--amber); }
+		.btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 10px; font-weight: 700; font-size: .92rem; transition: transform .15s, box-shadow .15s; }
+		.btn.primary { background: var(--amber); color: #100d02; box-shadow: 0 4px 18px rgba(242, 183, 5, .25); }
+		.btn.primary:hover { transform: translateY(-2px); }
+		.btn.ghost { border: 1px solid rgba(255, 255, 255, .18); color: var(--text); }
+		.btn.ghost:hover { border-color: var(--amber); color: var(--amber); }
+
+		/* hero */
+		.hero { position: relative; padding: 84px 0 40px; overflow: hidden; }
+		.hero::before { content: ""; position: absolute; top: -300px; right: -200px; width: 700px; height: 700px; background: radial-gradient(circle, rgba(242, 183, 5, .13), transparent 65%); pointer-events: none; }
+		.kicker { font-family: var(--pixel); font-size: .58rem; letter-spacing: 3px; color: var(--amber); display: block; margin-bottom: 18px; }
+		h1 { font-size: clamp(2rem, 5.4vw, 3.3rem); line-height: 1.12; letter-spacing: -.5px; max-width: 760px; }
+		h1 b { color: var(--amber); }
+		.sub { color: var(--muted); font-size: 1.12rem; max-width: 640px; margin: 20px 0 30px; }
+		.cta-row { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; margin-bottom: 16px; }
+		.free-note { color: var(--green); font-weight: 700; font-size: .9rem; }
+		.hero-shot { margin-top: 44px; border-radius: 16px; overflow: hidden; border: 1px solid var(--border); box-shadow: 0 40px 90px rgba(0, 0, 0, .55), 0 0 60px rgba(242, 183, 5, .07); }
+
+		/* stats strip */
+		.strip { display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; margin: 40px 0 0; }
+		.stat { flex: 1 1 150px; background: var(--card); border: 1px solid var(--border2); border-radius: 14px; padding: 16px 18px; }
+		.stat b { display: block; font-family: var(--mono); font-size: 1.5rem; color: var(--amber); }
+		.stat span { color: var(--muted); font-size: .82rem; }
+
+		/* sections */
+		section { padding: 72px 0 0; }
+		h2 { font-size: 1.7rem; margin-bottom: 6px; }
+		.lead { color: var(--muted); margin-bottom: 34px; max-width: 640px; }
+
+		/* features */
+		.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+		@media (max-width: 860px) { .grid { grid-template-columns: 1fr 1fr; } }
+		@media (max-width: 560px) { .grid { grid-template-columns: 1fr; } }
+		.card { background: var(--card); border: 1px solid var(--border2); border-radius: 16px; padding: 22px; transition: border-color .15s, transform .15s; }
+		.card:hover { border-color: var(--border); transform: translateY(-3px); }
+		.card .ic { font-size: 1.5rem; margin-bottom: 10px; display: block; }
+		.card h3 { font-size: 1.02rem; margin-bottom: 6px; }
+		.card p { color: var(--muted); font-size: .9rem; }
+		.card .pro { font-family: var(--mono); font-size: .62rem; font-weight: 700; background: var(--amber); color: #100d02; border-radius: 99px; padding: 2px 8px; vertical-align: 2px; margin-left: 6px; text-transform: uppercase; }
+
+		/* gallery */
+		.shots { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+		@media (max-width: 760px) { .shots { grid-template-columns: 1fr; } }
+		.shot { border-radius: 14px; overflow: hidden; border: 1px solid var(--border2); transition: border-color .15s, transform .15s; }
+		.shot:hover { border-color: var(--border); transform: translateY(-3px); }
+
+		/* pricing */
+		.plans { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; max-width: 860px; }
+		@media (max-width: 700px) { .plans { grid-template-columns: 1fr; } }
+		.plan { background: var(--card); border: 1px solid var(--border2); border-radius: 18px; padding: 28px; }
+		.plan.pro { border-color: var(--amber); box-shadow: 0 0 40px rgba(242, 183, 5, .09); }
+		.plan .tag { font-family: var(--pixel); font-size: .55rem; letter-spacing: 2px; color: var(--muted); }
+		.plan.pro .tag { color: var(--amber); }
+		.plan .price { font-size: 2.1rem; font-weight: 700; margin: 10px 0 4px; }
+		.plan .price span { font-size: .95rem; font-weight: 400; color: var(--muted); }
+		.plan ul { list-style: none; margin-top: 16px; }
+		.plan li { padding: 7px 0 7px 26px; position: relative; font-size: .92rem; border-bottom: 1px solid rgba(255, 255, 255, .05); }
+		.plan li:last-child { border-bottom: 0; }
+		.plan li::before { content: "✓"; position: absolute; left: 0; color: var(--amber); font-weight: 700; }
+		.plan li.no::before { content: "—"; color: var(--muted); }
+		.plan li.no { color: var(--muted); }
+
+		/* faq */
+		.faq details { background: var(--card); border: 1px solid var(--border2); border-radius: 12px; padding: 16px 20px; margin-bottom: 10px; }
+		.faq summary { cursor: pointer; font-weight: 600; }
+		.faq p { color: var(--muted); font-size: .92rem; margin-top: 10px; }
+
+		footer { margin-top: 80px; border-top: 1px solid var(--border2); padding: 30px 0 46px; color: var(--muted); font-size: .84rem; }
+		footer .links { margin-bottom: 10px; }
+		footer .links a { color: var(--muted); margin-right: 14px; }
+		footer .links a:hover { color: var(--amber); }
+	</style>
+</head>
+<body>
+
+<nav><div class="wrap navin">
+	<a class="brand" href="/"><img src="/assets/icon128.png" alt="" />Itch <b>Toolkit</b></a>
+	<div class="navlinks">
+		<a href="#features">Features</a>
+		<a href="#screenshots">Screenshots</a>
+		<a href="#pricing">Pricing</a>
+		<a href="#faq">FAQ</a>
+		<a class="btn primary" href="https://chromewebstore.google.com/search/itch.io%20Creator%20Toolkit" target="_blank" rel="noopener">Add to Chrome</a>
+	</div>
+</div></nav>
+
+<header class="hero"><div class="wrap">
+	<span class="kicker">CHROME EXTENSION · FOR ITCH.IO CREATORS</span>
+	<h1>Everything itch.io's dashboard <b>doesn't give you.</b></h1>
+	<p class="sub">Real analytics, download &amp; sale alerts, tag research, sanitizer-proof page widgets, 27 CSS themes and a built-in GIF studio — one extension, working on top of your own itch.io account.</p>
+	<div class="cta-row">
+		<a class="btn primary" href="https://chromewebstore.google.com/search/itch.io%20Creator%20Toolkit" target="_blank" rel="noopener">Add to Chrome — it's free</a>
+		<a class="btn ghost" href="#pricing">See Pro pricing</a>
+		<span class="free-note">● Core dashboard free forever</span>
+	</div>
+	<div class="hero-shot"><img src="/assets/01_analytics.jpg" alt="Itch Toolkit analytics dashboard: trends, funnel and auto-insights" /></div>
+
+	<div class="strip">
+		<div class="stat"><b>10</b><span>tools in one dashboard</span></div>
+		<div class="stat"><b>27</b><span>page themes + CSS designer</span></div>
+		<div class="stat"><b>19</b><span>animated page backgrounds</span></div>
+		<div class="stat"><b>14</b><span>GIF studio effects</span></div>
+		<div class="stat"><b>$0</b><span>to start — Pro $2.99/mo</span></div>
+	</div>
+</div></header>
+
+<section id="features"><div class="wrap">
+	<h2>What's inside</h2>
+	<p class="lead">Built by an itch.io creator with 30 published projects — every tool exists because the default dashboard couldn't answer a real question.</p>
+	<div class="grid">
+		<div class="card"><span class="ic">📊</span><h3>Real analytics</h3><p>Interactive trends, custom date ranges, conversion funnel, traffic sources, portfolio leaderboard, weekday rhythm and auto-generated insights. Free forever.</p></div>
+		<div class="card"><span class="ic">🔔</span><h3>Alerts<span class="pro">Pro</span></h3><p>Desktop notifications for new downloads, sales, ratings and bundle changes — plus a weekly recap. Opt-in, checked on your schedule.</p></div>
+		<div class="card"><span class="ic">🏷️</span><h3>Tag research<span class="pro">Pro</span></h3><p>See real competition per tag, co-occurrence with your seed tag, growth per day and an opportunity score. Copy your shortlist straight into itch's tag field.</p></div>
+		<div class="card"><span class="ic">🔎</span><h3>Indexing monitor<span class="pro">Pro</span></h3><p>Know instantly if a project was quietly de-indexed from itch search &amp; browse — checked from the page's own robots tag, with on-page badges.</p></div>
+		<div class="card"><span class="ic">🧱</span><h3>Page widgets</h3><p>Banners, callouts, spec tables, spoilers, changelogs and more — generated to survive itch.io's HTML sanitizer exactly as previewed. One paste.</p></div>
+		<div class="card"><span class="ic">🎨</span><h3>CSS theme designer<span class="pro">Pro</span></h3><p>27 full page themes, 19 animated backgrounds, Google fonts, custom buttons and overlays — for project pages and profiles alike.</p></div>
+		<div class="card"><span class="ic">🎬</span><h3>GIF &amp; sprite studio</h3><p>Compose layers, add particle systems and 14 effects, then export a GIF or an engine-ready sprite sheet. Editor free, export with Pro.</p></div>
+		<div class="card"><span class="ic">🤖</span><h3>AI title ideas<span class="pro">Pro</span></h3><p>Context-aware title and tagline suggestions right on your edit page, one click to apply, one click to undo.</p></div>
+		<div class="card"><span class="ic">📈</span><h3>Discoverability score</h3><p>A six-point checklist per project — cover, tags, description, devlog, indexing — so you know exactly what to fix next.</p></div>
+	</div>
+</div></section>
+
+<section id="screenshots"><div class="wrap">
+	<h2>See it in action</h2>
+	<p class="lead">Straight from the extension — this is the actual dashboard running on a real creator account.</p>
+	<div class="shots">
+		<a class="shot" href="/assets/02_overview.jpg" target="_blank"><img loading="lazy" src="/assets/02_overview.jpg" alt="Overview: every project, stat and indexing state" /></a>
+		<a class="shot" href="/assets/03_tag_studio.jpg" target="_blank"><img loading="lazy" src="/assets/03_tag_studio.jpg" alt="Tag Studio: competition, growth and opportunity scores" /></a>
+		<a class="shot" href="/assets/04_css_themes.jpg" target="_blank"><img loading="lazy" src="/assets/04_css_themes.jpg" alt="CSS designer with 27 page themes" /></a>
+		<a class="shot" href="/assets/05_gif_studio.jpg" target="_blank"><img loading="lazy" src="/assets/05_gif_studio.jpg" alt="GIF and sprite-sheet studio" /></a>
+		<a class="shot" href="/assets/06_widgets.jpg" target="_blank"><img loading="lazy" src="/assets/06_widgets.jpg" alt="Sanitizer-proof page widgets" /></a>
+		<a class="shot" href="/assets/08_onpage.jpg" target="_blank"><img loading="lazy" src="/assets/08_onpage.jpg" alt="On-page indexing alerts on any itch.io page" /></a>
+		<a class="shot" href="/assets/07_score.jpg" target="_blank"><img loading="lazy" src="/assets/07_score.jpg" alt="Discoverability checklist per project" /></a>
+		<a class="shot" href="/assets/09_ai.jpg" target="_blank"><img loading="lazy" src="/assets/09_ai.jpg" alt="AI title and tagline suggestions on the edit page" /></a>
+	</div>
+</div></section>
+
+<section id="pricing"><div class="wrap">
+	<h2>Pricing</h2>
+	<p class="lead">Start free, upgrade when it pays for itself. Full details on the <a href="/pricing/">pricing page</a>.</p>
+	<div class="plans">
+		<div class="plan">
+			<span class="tag">FREE</span>
+			<div class="price">$0 <span>forever</span></div>
+			<ul>
+				<li>Full analytics dashboard &amp; interactive charts</li>
+				<li>Conversion funnel, traffic sources, leaderboard</li>
+				<li>Core widgets + discoverability score</li>
+				<li>GIF Studio editor &amp; CSS designer preview</li>
+				<li>Watchlist (up to 3 games)</li>
+				<li class="no">Alerts, tag research &amp; indexing monitor</li>
+				<li class="no">Copyable theme CSS &amp; GIF export</li>
+			</ul>
+		</div>
+		<div class="plan pro">
+			<span class="tag">★ PRO</span>
+			<div class="price">$2.99 <span>/ month</span></div>
+			<ul>
+				<li><b>Everything in Free</b>, plus:</li>
+				<li>Download, sale &amp; rating alerts + weekly recap</li>
+				<li>Tag research with growth &amp; opportunity scores</li>
+				<li>Search-indexing monitoring &amp; de-index warnings</li>
+				<li>AI title &amp; tagline suggestions</li>
+				<li>All widgets + copyable theme CSS</li>
+				<li>GIF &amp; sprite-sheet export, unlimited watchlist</li>
+				<li>Cloud sync across devices</li>
+			</ul>
+			<p style="margin-top:14px; color:var(--muted); font-size:.85rem;">Billed securely by Paddle. Cancel anytime — see the <a href="/refunds/">refund policy</a>.</p>
+		</div>
+	</div>
+</div></section>
+
+<section id="faq"><div class="wrap">
+	<h2>FAQ</h2>
+	<div class="faq" style="max-width:760px; margin-top:26px;">
+		<details><summary>Is this affiliated with itch.io?</summary><p>No. Itch Toolkit is an independent tool built by a fellow itch.io creator, and is not endorsed by or affiliated with itch corp. It works on top of your own logged-in account and never asks for your itch.io password.</p></details>
+		<details><summary>Where does my data go?</summary><p>Your analytics are processed locally in your browser and never uploaded to our servers. Only your account email and the settings you choose to sync are stored. Full details in the <a href="/privacy/">privacy policy</a>.</p></details>
+		<details><summary>Do I need Pro to use it?</summary><p>No — the analytics dashboard, the core of the toolkit, is completely free with no time limit. Pro adds the growth tools: alerts, tag research, indexing monitoring, AI suggestions and exports.</p></details>
+		<details><summary>Can I cancel anytime?</summary><p>Yes, one click. You keep Pro until the end of the period you paid for. Payments are handled by Paddle, our merchant of record.</p></details>
+	</div>
+</div></section>
+
+<footer><div class="wrap">
+	<div class="links">
+		<a href="/pricing/">Pricing</a>
+		<a href="/terms/">Terms of Service</a>
+		<a href="/privacy/">Privacy Policy</a>
+		<a href="/refunds/">Refund Policy</a>
+		<a href="https://www.rehandev.xyz/">rehandev.xyz</a>
+		<a href="mailto:rehanfaisal123@gmail.com">Contact</a>
+	</div>
+	<p>© 2026 Rehan Faisal (RehanDev). Itch Toolkit is an independent product and is not affiliated with itch corp.</p>
+</div></footer>
+
+</body>
+</html>
