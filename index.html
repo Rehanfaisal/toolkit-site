@@ -275,7 +275,7 @@
 <section id="pricing"><div class="wrap">
 	<span class="sec-kick reveal">// pricing</span>
 	<h2 class="reveal">Start free. Upgrade when it pays for itself.</h2>
-	<p class="lead reveal">Full details on the <a href="/pricing/">pricing page</a>.</p>
+	<p class="lead reveal">One extension, two tiers. No trials, no surprises.</p>
 	<div class="plans">
 		<div class="plan reveal">
 			<span class="tag">FREE</span>
@@ -303,6 +303,10 @@
 				<li>GIF &amp; sprite-sheet export, unlimited watchlist</li>
 				<li>Cloud sync across devices</li>
 			</ul>
+			<div class="cta-row" style="margin-top:18px;">
+				<a class="btn" href="#" id="buyMonthly">Get Pro — $2.99/mo</a>
+				<a class="btn ghost" href="#" id="buyYearly">$17.99/yr · save 50%</a>
+			</div>
 			<p style="margin-top:14px; color:var(--muted); font-size:.85rem;">Billed securely by Paddle. Cancel anytime — see the <a href="/refunds/">refund policy</a>.</p>
 		</div>
 	</div>
@@ -329,7 +333,7 @@
 
 <footer><div class="wrap">
 	<div class="links">
-		<a href="/pricing/">Pricing</a>
+		<a href="#pricing">Pricing</a>
 		<a href="/terms/">Terms of Service</a>
 		<a href="/privacy/">Privacy Policy</a>
 		<a href="/refunds/">Refund Policy</a>
@@ -392,6 +396,26 @@
 	}, { threshold: .5 });
 	document.querySelectorAll('.stat b[data-count]').forEach(function (el) { cio.observe(el); });
 })();
+</script>
+<script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
+<script>
+	// ── Paddle checkout (SANDBOX for testing — flip to live before launch) ──
+	var PADDLE_ENV = "sandbox";                     // change to "production" for live
+	var PADDLE_TOKEN = "PASTE_CLIENT_TOKEN_HERE";   // Paddle → Developer tools → Authentication → client-side token
+	var PRICE_MONTHLY = "pri_01kxkc14sqjhvdrmj12kbz69xc";
+	var PRICE_YEARLY  = "pri_01kxkc2193ywv0qrahpn1fq2d8";
+
+	if (PADDLE_ENV === "sandbox") Paddle.Environment.set("sandbox");
+	Paddle.Initialize({ token: PADDLE_TOKEN });
+
+	function buy(priceId) {
+		Paddle.Checkout.open({
+			items: [{ priceId: priceId, quantity: 1 }],
+			settings: { displayMode: "overlay", theme: "dark", successUrl: "https://toolkit.rehandev.xyz/?purchase=success" }
+		});
+	}
+	document.getElementById("buyMonthly").addEventListener("click", function (e) { e.preventDefault(); buy(PRICE_MONTHLY); });
+	document.getElementById("buyYearly").addEventListener("click", function (e) { e.preventDefault(); buy(PRICE_YEARLY); });
 </script>
 </body>
 </html>
