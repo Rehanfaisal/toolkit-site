@@ -174,6 +174,18 @@
 		.plan li.no::before { content: "—"; color: var(--muted); }
 		.plan li.no { color: var(--muted); }
 
+		/* billing toggle */
+		.bill-toggle { display: inline-flex; align-items: center; background: var(--card); border: 1px solid var(--border2); border-radius: 999px; padding: 5px; margin: 4px 0 26px; position: relative; }
+		.bill-toggle button { font-family: inherit; font-size: .85rem; font-weight: 600; color: var(--muted); background: transparent; border: 0; padding: 9px 20px; border-radius: 999px; cursor: pointer; transition: color .25s; position: relative; z-index: 1; display: inline-flex; align-items: center; gap: 8px; }
+		.bill-toggle button.active { color: #100d02; }
+		.bill-toggle .knob { position: absolute; top: 5px; bottom: 5px; border-radius: 999px; background: linear-gradient(92deg, var(--amber), var(--amber-hi)); transition: transform .28s cubic-bezier(.4,.9,.3,1.3), width .28s cubic-bezier(.4,.9,.3,1.3); z-index: 0; box-shadow: 0 4px 14px rgba(242,183,5,.35); }
+		.save-badge { font-size: .6rem; font-weight: 700; letter-spacing: .5px; padding: 2px 7px; border-radius: 999px; background: var(--amber-dim); color: var(--amber); transition: background .25s, color .25s; }
+		.bill-toggle button.active .save-badge { background: rgba(16,13,2,.22); color: #100d02; }
+		.price .was { font-size: 1.15rem; color: var(--muted); text-decoration: line-through; text-decoration-color: rgba(242,183,5,.6); font-weight: 400; margin-right: 10px; }
+		.price .save-inline { font-size: .62rem; font-weight: 700; letter-spacing: .5px; color: var(--amber); background: var(--amber-dim); padding: 4px 9px; border-radius: 999px; vertical-align: middle; margin-left: 10px; }
+		.billed-note { color: var(--muted); font-size: .82rem; margin-top: 6px; min-height: 1.1em; }
+		.price .amt { transition: opacity .2s; }
+
 		/* faq */
 		.faq details { background: var(--card); border: 1px solid var(--border2); border-radius: 12px; padding: 16px 20px; margin-bottom: 10px; transition: border-color .2s; }
 		.faq details[open], .faq details:hover { border-color: var(--border); }
@@ -276,6 +288,11 @@
 	<span class="sec-kick reveal">// pricing</span>
 	<h2 class="reveal">Start free. Upgrade when it pays for itself.</h2>
 	<p class="lead reveal">One extension, two tiers. No trials, no surprises.</p>
+	<div class="bill-toggle reveal" role="tablist" aria-label="Billing period">
+		<span class="knob" id="billKnob"></span>
+		<button id="tabMonthly" role="tab">Monthly</button>
+		<button id="tabAnnual" class="active" role="tab">Annual <span class="save-badge">SAVE 50%</span></button>
+	</div>
 	<div class="plans">
 		<div class="plan reveal">
 			<span class="tag">FREE</span>
@@ -292,7 +309,8 @@
 		</div>
 		<div class="plan pro reveal">
 			<span class="tag">★ PRO</span>
-			<div class="price">$2.99 <span>/ month</span></div>
+			<div class="price"><span class="was" id="priceWas">$2.99</span><span class="amt" id="priceAmt">$1.49</span> <span>/ month</span><span class="save-inline" id="priceSave">50% OFF</span></div>
+			<p class="billed-note" id="billedNote">Billed $17.99 once a year</p>
 			<ul>
 				<li><b>Everything in Free</b>, plus:</li>
 				<li>Download, sale &amp; rating alerts + weekly recap</li>
@@ -304,8 +322,7 @@
 				<li>Cloud sync across devices</li>
 			</ul>
 			<div class="cta-row" style="margin-top:18px;">
-				<a class="btn" href="#" id="buyMonthly">Get Pro — $2.99/mo</a>
-				<a class="btn ghost" href="#" id="buyYearly">$17.99/yr · save 50%</a>
+				<a class="btn primary" href="#" id="buyPro" style="width:100%; justify-content:center;">Get Pro</a>
 			</div>
 			<p style="margin-top:14px; color:var(--muted); font-size:.85rem;">Billed securely by Paddle. Cancel anytime — see the <a href="/refunds/">refund policy</a>.</p>
 		</div>
@@ -408,14 +425,60 @@
 	if (PADDLE_ENV === "sandbox") Paddle.Environment.set("sandbox");
 	Paddle.Initialize({ token: PADDLE_TOKEN });
 
+	// ── Billing toggle (Annual default) ──
+	var annual = true;
+	var els = {
+		knob: document.getElementById("billKnob"),
+		mo: document.getElementById("tabMonthly"),
+		yr: document.getElementById("tabAnnual"),
+		was: document.getElementById("priceWas"),
+		amt: document.getElementById("priceAmt"),
+		save: document.getElementById("priceSave"),
+		note: document.getElementById("billedNote")
+	};
+	function moveKnob() {
+		var active = annual ? els.yr : els.mo;
+		els.knob.style.width = active.offsetWidth + "px";
+		els.knob.style.transform = "translateX(" + (active.offsetLeft - 5) + "px)";
+	}
+	function render() {
+		els.mo.classList.toggle("active", !annual);
+		els.yr.classList.toggle("active", annual);
+		els.amt.style.opacity = "0";
+		setTimeout(function () {
+			if (annual) {
+				els.was.style.display = "";
+				els.amt.textContent = "$1.49";
+				els.save.style.display = "";
+				els.note.textContent = "Billed $17.99 once a year";
+			} else {
+				els.was.style.display = "none";
+				els.amt.textContent = "$2.99";
+				els.save.style.display = "none";
+				els.note.textContent = "Billed monthly, cancel anytime";
+			}
+			els.amt.style.opacity = "1";
+		}, 120);
+		moveKnob();
+	}
+	els.mo.addEventListener("click", function () { annual = false; render(); });
+	els.yr.addEventListener("click", function () { annual = true; render(); });
+	window.addEventListener("resize", moveKnob);
+	render();
+	// set initial knob after layout settles
+	requestAnimationFrame(moveKnob);
+	window.addEventListener("load", moveKnob);
+
 	function buy(priceId) {
 		Paddle.Checkout.open({
 			items: [{ priceId: priceId, quantity: 1 }],
 			settings: { displayMode: "overlay", theme: "dark", successUrl: "https://toolkit.rehandev.xyz/?purchase=success" }
 		});
 	}
-	document.getElementById("buyMonthly").addEventListener("click", function (e) { e.preventDefault(); buy(PRICE_MONTHLY); });
-	document.getElementById("buyYearly").addEventListener("click", function (e) { e.preventDefault(); buy(PRICE_YEARLY); });
+	document.getElementById("buyPro").addEventListener("click", function (e) {
+		e.preventDefault();
+		buy(annual ? PRICE_YEARLY : PRICE_MONTHLY);
+	});
 </script>
 </body>
 </html>
