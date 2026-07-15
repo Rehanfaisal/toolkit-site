@@ -469,16 +469,63 @@
 	requestAnimationFrame(moveKnob);
 	window.addEventListener("load", moveKnob);
 
+	// If the extension sent the user here, it appends ?email=<their login email>.
+	// Prefilling checkout with it means Pro auto-unlocks in the extension.
+	var PREFILL_EMAIL = new URLSearchParams(location.search).get("email") || "";
 	function buy(priceId) {
-		Paddle.Checkout.open({
+		var opts = {
 			items: [{ priceId: priceId, quantity: 1 }],
 			settings: { displayMode: "overlay", theme: "dark", successUrl: "https://toolkit.rehandev.xyz/?purchase=success" }
-		});
+		};
+		if (PREFILL_EMAIL) opts.customer = { email: PREFILL_EMAIL };
+		Paddle.Checkout.open(opts);
 	}
 	document.getElementById("buyPro").addEventListener("click", function (e) {
 		e.preventDefault();
 		buy(annual ? PRICE_YEARLY : PRICE_MONTHLY);
 	});
+</script>
+
+<!-- ── Purchase success: fetch & show the license key ── -->
+<div id="keyModal" style="display:none; position:fixed; inset:0; z-index:200; background:rgba(6,8,13,.82); backdrop-filter:blur(6px); align-items:center; justify-content:center; padding:20px;">
+	<div style="background:var(--bg2); border:1px solid var(--border); border-radius:18px; max-width:460px; width:100%; padding:34px 30px; text-align:center; box-shadow:0 0 60px rgba(242,183,5,.15);">
+		<div style="font-size:2.4rem;">🎉</div>
+		<h3 style="font-size:1.4rem; margin:8px 0 6px;">You're Pro!</h3>
+		<p style="color:var(--muted); font-size:.92rem; margin-bottom:18px;">Copy your license key and paste it into the extension — open the Toolkit dashboard → <b>Membership → Activate Pro</b>.</p>
+		<div id="keyBox" style="font-family:var(--mono, monospace); font-size:1.15rem; font-weight:700; letter-spacing:1px; color:var(--amber); background:var(--card); border:1px dashed var(--border); border-radius:12px; padding:16px; user-select:all;">…</div>
+		<button id="keyCopy" class="btn primary" style="margin-top:16px; width:100%; justify-content:center;">Copy key</button>
+		<p style="color:var(--muted); font-size:.8rem; margin-top:14px;">We've also emailed it to you. Keep it safe — it's how the extension unlocks Pro.</p>
+	</div>
+</div>
+<script>
+	// Paddle appends ?_ptxn=<transaction id> to the success URL.
+	var ACTIVATE_URL = "https://us-central1-YOUR_PROJECT.cloudfunctions.net/activate"; // ← paste your deployed activate URL
+	(function () {
+		var q = new URLSearchParams(location.search);
+		var ptxn = q.get("_ptxn");
+		if (!q.has("purchase") && !ptxn) return;
+		if (!ptxn) return;
+		var modal = document.getElementById("keyModal");
+		var box = document.getElementById("keyBox");
+		modal.style.display = "flex";
+		box.textContent = "Preparing your key…";
+		var tries = 0;
+		(function poll() {
+			fetch(ACTIVATE_URL + "?ptxn=" + encodeURIComponent(ptxn))
+				.then(function (r) { return r.json(); })
+				.then(function (j) {
+					if (j.key) { box.textContent = j.key; }
+					else if (j.pending && tries++ < 8) { setTimeout(poll, 2000); } // webhook not in yet
+					else { box.textContent = "Check your email for your key."; }
+				})
+				.catch(function () { box.textContent = "Check your email for your key."; });
+		})();
+		document.getElementById("keyCopy").addEventListener("click", function () {
+			navigator.clipboard.writeText(box.textContent).then(function () {
+				this.textContent = "Copied ✓";
+			}.bind(this));
+		});
+	})();
 </script>
 </body>
 </html>
