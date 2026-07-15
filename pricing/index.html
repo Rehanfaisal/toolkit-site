@@ -101,7 +101,8 @@
 					<li>GIF export &amp; unlimited watchlist</li>
 					<li>Cloud sync across devices</li>
 				</ul>
-				<span class="cta soon">Coming soon — launching with the extension</span>
+				<a class="cta pro" href="#" id="buyMonthly">Get Pro — $2.99/mo</a>
+				<a class="cta pro" href="#" id="buyYearly" style="margin-left:8px">$17.99/yr (save 50%)</a>
 			</div>
 		</div>
 
@@ -129,5 +130,25 @@
 			<a href="https://www.rehandev.xyz/">rehandev.xyz</a>
 		</div>
 	</div>
+<script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
+<script>
+	// ── Paddle checkout (SANDBOX for testing — flip to live before launch) ──
+	var PADDLE_ENV = "sandbox";                     // change to "production" for live
+	var PADDLE_TOKEN = "PASTE_CLIENT_TOKEN_HERE";   // Paddle → Developer tools → Authentication → client-side token
+	var PRICE_MONTHLY = "pri_01kxkc14sqjhvdrmj12kbz69xc";
+	var PRICE_YEARLY  = "pri_01kxkc2193ywv0qrahpn1fq2d8";
+
+	if (PADDLE_ENV === "sandbox") Paddle.Environment.set("sandbox");
+	Paddle.Initialize({ token: PADDLE_TOKEN });
+
+	function buy(priceId) {
+		Paddle.Checkout.open({
+			items: [{ priceId: priceId, quantity: 1 }],
+			settings: { displayMode: "overlay", theme: "dark", successUrl: "https://toolkit.rehandev.xyz/?purchase=success" }
+		});
+	}
+	document.getElementById("buyMonthly").addEventListener("click", function (e) { e.preventDefault(); buy(PRICE_MONTHLY); });
+	document.getElementById("buyYearly").addEventListener("click", function (e) { e.preventDefault(); buy(PRICE_YEARLY); });
+</script>
 </body>
 </html>
